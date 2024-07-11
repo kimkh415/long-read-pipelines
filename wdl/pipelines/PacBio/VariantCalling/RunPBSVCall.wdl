@@ -96,7 +96,7 @@ workflow RunPBSVCall {
 
     call Call {
         input:
-            svsigs        = [ Discover.svsig ],
+            svsigs        = svsigs,
             ref_fasta     = ref_fasta,
             ref_fasta_fai = ref_fasta_fai,
             ccs           = is_ccs,
