@@ -1,6 +1,8 @@
 version 1.0
 
 import "../../../structs/Structs.wdl"
+import "../../../tasks/Utility/Finalize.wdl" as FF
+import "../../../tasks/Utility/VariantUtils.wdl"
 
 task Call {
     input {
@@ -77,6 +79,7 @@ workflow RunPBSVCall {
         ref_fasta_fai:     "index accompanying the reference"
         prefix:            "prefix for output"
         zones:             "zones to run in"
+			  gcs_outdir:				 "output directory in GCP"
     }
 
     input {
@@ -100,8 +103,14 @@ workflow RunPBSVCall {
             zones         = zones
     }
 
+    call VariantUtils.ZipAndIndexVCF as ZipAndIndexPBSV {input: vcf = Call.vcf }
+    call FF.FinalizeToFile as FinalizePBSV { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.vcfgz) }
+    call FF.FinalizeToFile as FinalizePBSVtbi { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.tbi) }
+
+
     output {
-        File vcf = pbsv.Call.vcf
+        File vcf = FinalizePBSV.gcs_path
+        File tbi = FinalizePBSVtbi.gcs_path
     }
 }
 
