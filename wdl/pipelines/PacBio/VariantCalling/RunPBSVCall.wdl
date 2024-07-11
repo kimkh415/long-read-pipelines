@@ -105,8 +105,8 @@ workflow RunPBSVCall {
     }
 
     call VariantUtils.ZipAndIndexVCF as ZipAndIndexPBSV {input: vcf = Call.vcf }
-    call FF.FinalizeToFile as FinalizePBSV { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.vcfgz) }
-    call FF.FinalizeToFile as FinalizePBSVtbi { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.tbi) }
+    call FF.FinalizeToFile as FinalizePBSV { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.vcfgz }
+    call FF.FinalizeToFile as FinalizePBSVtbi { input: outdir = gcs_outdir, file = ZipAndIndexPBSV.tbi }
 
 
     output {
