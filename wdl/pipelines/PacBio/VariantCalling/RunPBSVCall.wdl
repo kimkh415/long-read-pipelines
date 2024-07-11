@@ -91,6 +91,7 @@ workflow RunPBSVCall {
         String prefix
 
         String zones
+				String gcs_outdir
     }
 
     call Call {
