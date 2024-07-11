@@ -153,3 +153,7 @@ workflows:
 - name: SvQCPlots
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/TechAgnostic/Visualization/SvQCPlots.wdl
+- name: RunPBSVCall
+  subclass: wdl
+  primaryDescriptorPath: /wdl/pipelines/PacBio/VariantCalling/RunPBSVCall.wdl
+
