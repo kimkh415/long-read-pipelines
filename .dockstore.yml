@@ -156,9 +156,9 @@ workflows:
 - name: RunPBSVCall
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/VariantCalling/RunPBSVCall.wdl
-- name: QCAssemblies
+- name: QCHaploAssemblies
   subclass: wdl
-  primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/QCAssemblies.wdl
+  primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/QCHaploAssemblies.wdl
 - name: PBHifiasmQuast
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/PBHifiasmQuast.wdl

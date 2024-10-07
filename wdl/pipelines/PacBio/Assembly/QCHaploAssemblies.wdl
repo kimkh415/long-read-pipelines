@@ -5,7 +5,7 @@ import "../../../tasks/QC/Quast.wdl" as QuastEval
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
 
-workflow QCAssemblies {
+workflow QCHaploAssemblies {
 
     meta {
         description: "Perform Quast QC on two haplotype resolved assemblies"
@@ -13,7 +13,8 @@ workflow QCAssemblies {
     parameter_meta {
         ccs_fq:            "GCS path to CCS fastq file"
         ref_fasta_for_eval: "Reference Fasta used for evaluating "
-        assemblies:         "list of assemblies (e.g. hap1 hap2)"
+        assembly_hap1:         "hap1 assembly fa"
+        assembly_hap2:         "hap2 assembly fa"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
 
@@ -21,7 +22,8 @@ workflow QCAssemblies {
         File ccs_fq
         String prefix
         File ref_fasta_for_eval
-        Array[File] assemblies
+        File assembly_hap1
+        File assembly_hap2
         String gcs_out_root_dir
     }
 
@@ -30,7 +32,7 @@ workflow QCAssemblies {
         input:
             ref = ref_fasta_for_eval,
             fq = ccs_fq,
-            assemblies = assemblies
+            assemblies = [assembly_hap1, assembly_hap2]
     }
 
     call QuastEval.SummarizeQuastReport as hap_quast_summary {
@@ -39,7 +41,7 @@ workflow QCAssemblies {
 
     #########################################################################################
     # Finalize data
-    String workflow_name = "PBAssembleWithHifiasm"
+    String workflow_name = "QCHaploAssemblies"
 
     String outdir = sub(gcs_out_root_dir, "/$", "") + "/" + workflow_name + "/~{prefix}"
     String dir = outdir + "/assembly"
