@@ -28,7 +28,7 @@ workflow QCAssemblies {
     call QuastEval.Quast as hap_quast {
         input:
             ref = ref_fasta_for_eval,
-            fq = ccs_fq
+            fq = ccs_fq,
             assemblies = assemblies
     }
 
