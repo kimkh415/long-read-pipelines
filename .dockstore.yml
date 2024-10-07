@@ -159,4 +159,7 @@ workflows:
 - name: QCAssemblies
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/QCAssemblies.wdl
+- name: PBHifiasmQuast
+  subclass: wdl
+  primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/PBHifiasmQuast.wdl
 
