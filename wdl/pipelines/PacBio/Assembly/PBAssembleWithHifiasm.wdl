@@ -2,7 +2,6 @@ version 1.0
 
 import "../../../tasks/Utility/Utils.wdl" as Utils
 import "../../../tasks/Assembly/Hifiasm.wdl" as HA
-import "../../../tasks/QC/Quast.wdl" as QuastEval
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
 workflow PBAssembleWithHifiasm {
@@ -16,7 +15,6 @@ workflow PBAssembleWithHifiasm {
         participant_name:   "name of the participant from whom these samples were obtained"
         prefix:             "prefix for output files"
 
-        ref_fasta_for_eval: "Reference Fasta used for evaluating "
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
 
@@ -25,8 +23,6 @@ workflow PBAssembleWithHifiasm {
 
         String participant_name
         String prefix
-
-        File? ref_fasta_for_eval
 
         String gcs_out_root_dir
     }
