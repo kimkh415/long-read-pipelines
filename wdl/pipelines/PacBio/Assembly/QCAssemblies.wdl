@@ -10,14 +10,14 @@ workflow QCAssemblies {
         description: "Perform Quast QC on two haplotype resolved assemblies."
     }
     parameter_meta {
-        ccs_fqs:            "GCS path to CCS fastq files"
+        ccs_fq:            "GCS path to CCS fastq file"
         ref_fasta_for_eval: "Reference Fasta used for evaluating "
         assemblies:         "list of assemblies (e.g. hap1 hap2)"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
 
     input {
-        File ccs_fqs
+        File ccs_fq
         String prefix
         File ref_fasta_for_eval
         Array[File] assemblies
