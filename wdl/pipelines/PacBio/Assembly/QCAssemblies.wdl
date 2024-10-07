@@ -7,7 +7,7 @@ import "../../../tasks/Utility/Finalize.wdl" as FF
 workflow QCAssemblies {
 
     meta {
-        description: "Perform Quast QC on two haplotype resolved assemblies."
+        description: "Perform Quast QC on two haplotype resolved assemblies"
     }
     parameter_meta {
         ccs_fq:            "GCS path to CCS fastq file"
