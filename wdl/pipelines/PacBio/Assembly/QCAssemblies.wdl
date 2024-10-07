@@ -4,6 +4,7 @@ import "../../../tasks/Utility/Utils.wdl" as Utils
 import "../../../tasks/QC/Quast.wdl" as QuastEval
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
+
 workflow QCAssemblies {
 
     meta {
