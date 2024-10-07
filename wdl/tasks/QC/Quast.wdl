@@ -15,7 +15,7 @@ task Quast {
 
     input {
         File? ref
-        fq = fq
+        File = fq
         Array[File] assemblies
         Boolean is_large = false
 
