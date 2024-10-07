@@ -30,7 +30,7 @@ task Quast {
 
         num_core=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 
-        quast --no-icarus --large --space-efficient --no-snps --no-sv \
+        quast.py --no-icarus --large --space-efficient --no-snps --no-sv \
               --threads "${num_core}" \
               --pacbio ~{fq} \
               ~{true='-r' false='' defined(ref)} \
