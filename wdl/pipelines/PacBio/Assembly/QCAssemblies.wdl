@@ -7,7 +7,7 @@ import "../../../tasks/Utility/Finalize.wdl" as FF
 workflow QCAssemblies {
 
     meta {
-        description: "A workflow that performs single sample genome assembly on PacBio HiFi reads from one or more SMRT cells. The multiple SMRT cells data are merged prior to assembly."
+        description: "Perform Quast QC on two haplotype resolved assemblies."
     }
     parameter_meta {
         ccs_fqs:            "GCS path to CCS fastq files"
