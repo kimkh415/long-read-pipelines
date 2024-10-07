@@ -8,7 +8,8 @@ task Quast {
         description: "A task that runs QUAST to evaluate a given set of assemblies on a species with existing reference assembly. Entire Quast output will be tarballed"
     }
     parameter_meta {
-        ref:        "reference assembly of the species"
+        ref:        "reference assembly fasta of the species"
+        fq:         "fastq file used to build assemblies"
         assemblies: "list of assemblies to evaluate"
     }
 
@@ -23,16 +24,14 @@ task Quast {
     Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
     Int disk_size = if minimal_disk_size > 100 then minimal_disk_size else 100
 
-    String size_optimization = if is_large then "--large" else " "
-
     command <<<
         set -eux
 
         num_core=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 
-        quast --no-icarus \
-              "~{size_optimization}" \
+        quast --no-icarus --large --space-efficient --no-snps --no-sv \
               --threads "${num_core}" \
+              --pacbio ~{fq} \
               ~{true='-r' false='' defined(ref)} \
               ~{select_first([ref, ""])} \
               ~{sep=' ' assemblies}
@@ -40,7 +39,7 @@ task Quast {
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
+            tar -zcvf quast_results.tar.gz quast_results/*
         fi
     >>>
 
@@ -52,7 +51,7 @@ task Quast {
 
         Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
-        File? contigs_reports = "contigs_reports.tar.gz"
+        File? quast_results = "quast_results.tar.gz"
     }
 
     ###################
