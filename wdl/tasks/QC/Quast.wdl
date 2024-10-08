@@ -54,7 +54,7 @@ task Quast {
 
         Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
-        File? quast_results = "quast_results.tar.gz"
+        File quast_results = "quast_results.tar.gz"
     }
 
     ###################

@@ -50,6 +50,12 @@ workflow QCHaploAssemblies {
     call FF.FinalizeToFile as FinalizeQuastReportHtml {
         input: outdir = dir, file = hap_quast.report_html
     }
+    call FF.FinalizeToFile as FinalizeQuastReportTxt {
+        input: outdir = dir, file = hap_quast.report_txt
+    }
+    call FF.FinalizeToFile as FinalizeQuastResults {
+        input: outdir = dir, file = hap_quast.quast_results
+    }
     call FF.FinalizeAndCompress as FinalizeQuastReports {
         input: outdir = dir, files = hap_quast.report_in_various_formats, prefix = prefix + ".quast_reports"
     }
@@ -62,6 +68,8 @@ workflow QCHaploAssemblies {
 
     output {
         File? quast_report_html = FinalizeQuastReportHtml.gcs_path
+        File? quast_report_txt = FinalizeQuastReportTxt.gcs_path
+        File? quast_results = FinalizeQuastResults.gcs_path
         File? quast_report_in_various_formats = FinalizeQuastReports.gcs_path
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
