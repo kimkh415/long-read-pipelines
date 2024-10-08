@@ -79,9 +79,9 @@ workflow PBHifiasmQuast {
     call FF.FinalizeToFile as FinalizeQuastSummaryAll {
         input: outdir = dir, file = hap_quast_summary.quast_metrics_together
     }
-    scatter (report in hap_quast_summary.quast_metrics ) {
-        call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
-    }
+    #scatter (report in hap_quast_summary.quast_metrics ) {
+    #    call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
+    #}
 
     output {
         File hifiasm_primary_gfa  = FinalizeHifiasmPrimaryGFA.gcs_path
@@ -98,8 +98,7 @@ workflow PBHifiasmQuast {
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
-        File? quast_summary_on_primary = FinalizeQuastIndividualSummary.gcs_path[0]
-        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[1]
-        File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
+        #File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
+        #File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[1]
     }
 }
