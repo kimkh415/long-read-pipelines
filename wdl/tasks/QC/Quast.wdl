@@ -23,7 +23,7 @@ task Quast {
     }
 
     Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
-    Int disk_size = if minimal_disk_size > 100 then minimal_disk_size else 100
+    Int disk_size = if minimal_disk_size > 300 then minimal_disk_size else 300
 
     command <<<
         set -eux
