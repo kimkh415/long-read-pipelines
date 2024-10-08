@@ -11,6 +11,7 @@ task Quast {
         ref:        "reference assembly fasta of the species"
         fq:         "fastq file used to build assemblies"
         assemblies: "list of assemblies to evaluate"
+        quast_disk_size: "disk size in GB"
     }
 
     input {
@@ -18,12 +19,13 @@ task Quast {
         File fq
         Array[File] assemblies
         Boolean is_large = false
+        Int quast_disk_size = 500
 
         RuntimeAttr? runtime_attr_override
     }
 
     Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
-    Int disk_size = if minimal_disk_size > 300 then minimal_disk_size else 300
+    Int disk_size = if minimal_disk_size > quast_disk_size then minimal_disk_size else quast_disk_size
 
     command <<<
         set -eux
