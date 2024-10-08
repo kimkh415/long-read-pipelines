@@ -56,9 +56,9 @@ workflow QCHaploAssemblies {
     call FF.FinalizeToFile as FinalizeQuastSummaryAll {
         input: outdir = dir, file = hap_quast_summary.quast_metrics_together
     }
-    scatter (report in hap_quast_summary.quast_metrics ) {
-        call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
-    }
+    #scatter (report in hap_quast_summary.quast_metrics ) {
+    #    call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
+    #}
 
     output {
         File? quast_report_html = FinalizeQuastReportHtml.gcs_path
@@ -66,7 +66,7 @@ workflow QCHaploAssemblies {
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
-        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[1]
-        File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
+        #File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
+        #File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[1]
     }
 }
