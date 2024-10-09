@@ -77,8 +77,8 @@ workflow PBCCSWholeGenome {
     File bam = select_first([MergeAllReads.merged_bam, aligned_bams[0]])
     File bai = select_first([MergeAllReads.merged_bai, aligned_bais[0]])
 
-    call PB.PBIndex as IndexCCSUnalignedReads { input: bam = bam }
-    File pbi = IndexCCSUnalignedReads.pbi
+    #call PB.PBIndex as IndexCCSUnalignedReads { input: bam = bam }
+    #File pbi = IndexCCSUnalignedReads.pbi
 
     call COV.SampleLevelAlignedMetrics as coverage {
         input:
@@ -92,7 +92,7 @@ workflow PBCCSWholeGenome {
 
     call FF.FinalizeToFile as FinalizeBam { input: outdir = dir, file = bam, name = "~{participant_name}.bam" }
     call FF.FinalizeToFile as FinalizeBai { input: outdir = dir, file = bai, name = "~{participant_name}.bam.bai" }
-    call FF.FinalizeToFile as FinalizePbi { input: outdir = dir, file = pbi, name = "~{participant_name}.bam.pbi" }
+    #call FF.FinalizeToFile as FinalizePbi { input: outdir = dir, file = pbi, name = "~{participant_name}.bam.pbi" }
 
     if (defined(bed_to_compute_coverage)) { call FF.FinalizeToFile as FinalizeRegionalCoverage { input: outdir = dir, file = select_first([coverage.bed_cov_summary]) } }
 
@@ -170,7 +170,7 @@ workflow PBCCSWholeGenome {
     output {
         File aligned_bam = FinalizeBam.gcs_path
         File aligned_bai = FinalizeBai.gcs_path
-        File aligned_pbi = FinalizePbi.gcs_path
+        #File aligned_pbi = FinalizePbi.gcs_path
 
         Float aligned_num_reads = coverage.aligned_num_reads
         Float aligned_num_bases = coverage.aligned_num_bases
