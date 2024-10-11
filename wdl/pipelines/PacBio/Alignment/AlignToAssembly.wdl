@@ -24,7 +24,7 @@ task RunMinimap2 {
         minimap2 -ax ~{preset} \
             -t ~{threads} \
             ~{reference_fasta} \
-            ~{ccs_fastq} | \
+            ~{ccs_fastq} 2> minimap2.log | \
         samtools sort -@ ~{threads} -O BAM -o ~{sample_name}.~{haplotype}.sorted.bam
 
         samtools index -@ ~{threads} ~{sample_name}.~{haplotype}.sorted.bam
