@@ -162,6 +162,6 @@ workflows:
 - name: PBHifiasmQuast
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/PBHifiasmQuast.wdl
-- name: AlignToAssembly.wdl
+- name: AlignToAssembly
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Alignment/AlignToAssembly.wdl
