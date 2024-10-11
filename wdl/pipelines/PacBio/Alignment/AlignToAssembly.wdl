@@ -11,8 +11,8 @@ task RunMinimap2 {
         String haplotype
         String preset = "map-hifi"
         Int threads = 16
-        String memory = "32G"
-        String disk_size = "100G"
+        String memory = "80"
+        String disk_size = "100"
     }
 
     command <<<
@@ -39,7 +39,7 @@ task RunMinimap2 {
         docker: "quay.io/biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:1679e915ddb9d6b4abda91880c4b48857d471bd8-0"
         memory: memory
         cpu: threads
-        disks: "local-disk " + disk_size + " SSD"
+        disks: "local-disk " + disk_size + " HDD"
     }
 }
 
