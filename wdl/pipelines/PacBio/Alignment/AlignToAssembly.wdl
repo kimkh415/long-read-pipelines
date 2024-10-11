@@ -11,8 +11,8 @@ task RunMinimap2 {
         String haplotype
         String preset = "map-hifi"
         Int threads = 16
-        String memory = "80"
-        String disk_size = "100"
+        Int memory = 80
+        Int disk_size = 100
     }
 
     command <<<
