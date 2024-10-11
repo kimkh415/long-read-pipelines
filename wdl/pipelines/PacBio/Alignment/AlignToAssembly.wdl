@@ -87,7 +87,7 @@ workflow Minimap2AlignmentWithMetrics {
     }
 
     output {
-        File ~{reference_name})_aligned_bam = FinalizeBam.gcs_path
+        File ~{reference_name}_aligned_bam = FinalizeBam.gcs_path
         File ~{reference_name}_aligned_bai = FinalizeBai.gcs_path
 
         Float ~{reference_name}_aligned_num_reads = coverage.aligned_num_reads
