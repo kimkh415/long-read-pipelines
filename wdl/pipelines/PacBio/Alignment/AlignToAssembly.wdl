@@ -8,7 +8,7 @@ task RunMinimap2 {
         File ccs_fastq
         File reference_fasta
         String sample_name
-        String reference_name
+        String haplotype
         String preset = "map-hifi"
         Int threads = 16
         String memory = "32G"
@@ -25,14 +25,14 @@ task RunMinimap2 {
             -t ~{threads} \
             ~{reference_fasta} \
             ~{ccs_fastq} | \
-        samtools sort -@ ~{threads} -O BAM -o ~{sample_name}.~{reference_name}.sorted.bam
-        
-        samtools index -@ ~{threads} ~{sample_name}.~{reference_name}.sorted.bam
+        samtools sort -@ ~{threads} -O BAM -o ~{sample_name}.~{haplotype}.sorted.bam
+
+        samtools index -@ ~{threads} ~{sample_name}.~{haplotype}.sorted.bam
     >>>
 
     output {
-        File aligned_bam = "~{sample_name}.~{reference_name}.sorted.bam"
-        File aligned_bai = "~{sample_name}.~{reference_name}.sorted.bam.bai"
+        File aligned_bam = "~{sample_name}.~{haplotype}.sorted.bam"
+        File aligned_bai = "~{sample_name}.~{haplotype}.sorted.bam.bai"
     }
 
     runtime {
@@ -46,60 +46,103 @@ task RunMinimap2 {
 workflow Minimap2AlignmentWithMetrics {
     input {
         File ccs_fastq
-        File reference_fasta
-        String reference_name
+        File reference_fasta_hap1
+        File reference_fasta_hap2
         String sample_name
         String preset = "map-hifi"
         String outdir
         File? bed_to_compute_coverage
     }
 
-    call RunMinimap2 {
+    call RunMinimap2 as AlignHap1 {
         input:
             ccs_fastq = ccs_fastq,
-            reference_fasta = reference_fasta,
+            reference_fasta = reference_fasta_hap1,
             sample_name = sample_name,
-            reference_name = reference_name,
+            haplotype = "hap1",
             preset = preset
     }
 
-    call COV.SampleLevelAlignedMetrics as coverage {
+    call RunMinimap2 as AlignHap2 {
         input:
-            aligned_bam = RunMinimap2.aligned_bam,
-            aligned_bai = RunMinimap2.aligned_bai,
-            ref_fasta = reference_fasta,
+            ccs_fastq = ccs_fastq,
+            reference_fasta = reference_fasta_hap2,
+            sample_name = sample_name,
+            haplotype = "hap2",
+            preset = preset
+    }
+
+    call COV.SampleLevelAlignedMetrics as CoverageHap1 {
+        input:
+            aligned_bam = AlignHap1.aligned_bam,
+            aligned_bai = AlignHap1.aligned_bai,
+            ref_fasta = reference_fasta_hap1,
+            bed_to_compute_coverage = bed_to_compute_coverage
+    }
+
+    call COV.SampleLevelAlignedMetrics as CoverageHap2 {
+        input:
+            aligned_bam = AlignHap2.aligned_bam,
+            aligned_bai = AlignHap2.aligned_bai,
+            ref_fasta = reference_fasta_hap2,
             bed_to_compute_coverage = bed_to_compute_coverage
     }
 
     String dir = outdir + "/alignments"
 
-    call FF.FinalizeToFile as FinalizeBam { 
-        input: 
-            outdir = dir, 
-            file = RunMinimap2.aligned_bam, 
-            name = "~{sample_name}.~{reference_name}.bam" 
+    call FF.FinalizeToFile as FinalizeBamHap1 {
+        input:
+            outdir = dir,
+            file = AlignHap1.aligned_bam,
+            name = "~{sample_name}.hap1.bam"
     }
-    call FF.FinalizeToFile as FinalizeBai { 
-        input: 
-            outdir = dir, 
-            file = RunMinimap2.aligned_bai, 
-            name = "~{sample_name}.~{reference_name}.bam.bai" 
+    call FF.FinalizeToFile as FinalizeBaiHap1 {
+        input:
+            outdir = dir,
+            file = AlignHap1.aligned_bai,
+            name = "~{sample_name}.hap1.bam.bai"
+    }
+
+    call FF.FinalizeToFile as FinalizeBamHap2 {
+        input:
+            outdir = dir,
+            file = AlignHap2.aligned_bam,
+            name = "~{sample_name}.hap2.bam"
+    }
+    call FF.FinalizeToFile as FinalizeBaiHap2 {
+        input:
+            outdir = dir,
+            file = AlignHap2.aligned_bai,
+            name = "~{sample_name}.hap2.bam.bai"
     }
 
     output {
-        File ~{reference_name}_aligned_bam = FinalizeBam.gcs_path
-        File ~{reference_name}_aligned_bai = FinalizeBai.gcs_path
+        File hap1_aligned_bam = FinalizeBamHap1.gcs_path
+        File hap1_aligned_bai = FinalizeBaiHap1.gcs_path
+        File hap2_aligned_bam = FinalizeBamHap2.gcs_path
+        File hap2_aligned_bai = FinalizeBaiHap2.gcs_path
 
-        Float ~{reference_name}_aligned_num_reads = coverage.aligned_num_reads
-        Float ~{reference_name}_aligned_num_bases = coverage.aligned_num_bases
-        Float ~{reference_name}_aligned_frac_bases = coverage.aligned_frac_bases
-        Float ~{reference_name}_aligned_est_fold_cov = coverage.aligned_est_fold_cov
-        Float ~{reference_name}_aligned_read_length_mean = coverage.aligned_read_length_mean
-        Float ~{reference_name}_aligned_read_length_median = coverage.aligned_read_length_median
-        Float ~{reference_name}_aligned_read_length_stdev = coverage.aligned_read_length_stdev
-        Float ~{reference_name}_aligned_read_length_n50 = coverage.aligned_read_length_N50
-        Float ~{reference_name}_average_identity = coverage.average_identity
-        Float ~{reference_name}_median_identity = coverage.median_identity
+        Float hap1_aligned_num_reads = CoverageHap1.aligned_num_reads
+        Float hap1_aligned_num_bases = CoverageHap1.aligned_num_bases
+        Float hap1_aligned_frac_bases = CoverageHap1.aligned_frac_bases
+        Float hap1_aligned_est_fold_cov = CoverageHap1.aligned_est_fold_cov
+        Float hap1_aligned_read_length_mean = CoverageHap1.aligned_read_length_mean
+        Float hap1_aligned_read_length_median = CoverageHap1.aligned_read_length_median
+        Float hap1_aligned_read_length_stdev = CoverageHap1.aligned_read_length_stdev
+        Float hap1_aligned_read_length_n50 = CoverageHap1.aligned_read_length_N50
+        Float hap1_average_identity = CoverageHap1.average_identity
+        Float hap1_median_identity = CoverageHap1.median_identity
+
+        Float hap2_aligned_num_reads = CoverageHap2.aligned_num_reads
+        Float hap2_aligned_num_bases = CoverageHap2.aligned_num_bases
+        Float hap2_aligned_frac_bases = CoverageHap2.aligned_frac_bases
+        Float hap2_aligned_est_fold_cov = CoverageHap2.aligned_est_fold_cov
+        Float hap2_aligned_read_length_mean = CoverageHap2.aligned_read_length_mean
+        Float hap2_aligned_read_length_median = CoverageHap2.aligned_read_length_median
+        Float hap2_aligned_read_length_stdev = CoverageHap2.aligned_read_length_stdev
+        Float hap2_aligned_read_length_n50 = CoverageHap2.aligned_read_length_N50
+        Float hap2_average_identity = CoverageHap2.average_identity
+        Float hap2_median_identity = CoverageHap2.median_identity
     }
 }
 
