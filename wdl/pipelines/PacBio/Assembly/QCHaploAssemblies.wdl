@@ -75,7 +75,7 @@ workflow QCHaploAssemblies {
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
-        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
+        File? quast_summary_on_primary = FinalizeQuastIndividualSummary.gcs_path[0]
         File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[1]
         File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
     }
