@@ -11,17 +11,18 @@ workflow QCHaploAssemblies {
         description: "Perform Quast QC on two haplotype resolved assemblies"
     }
     parameter_meta {
-        ccs_fq:            "GCS path to CCS fastq file"
+        prefix:						 "sample name"
         ref_fasta_for_eval: "Reference Fasta used for evaluating "
+        assembly_primary:   "primary assembly fa"
         assembly_hap1:         "hap1 assembly fa"
         assembly_hap2:         "hap2 assembly fa"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
 
     input {
-        File ccs_fq
         String prefix
         File ref_fasta_for_eval
+        File assembly_primary
         File assembly_hap1
         File assembly_hap2
         String gcs_out_root_dir
@@ -31,8 +32,8 @@ workflow QCHaploAssemblies {
     call QuastEval.Quast as hap_quast {
         input:
             ref = ref_fasta_for_eval,
-            fq = ccs_fq,
-            assemblies = [assembly_hap1, assembly_hap2]
+            is_large = true,
+            assemblies = [assembly_primary, assembly_hap1, assembly_hap2]
     }
 
     call QuastEval.SummarizeQuastReport as hap_quast_summary {
@@ -62,9 +63,9 @@ workflow QCHaploAssemblies {
     call FF.FinalizeToFile as FinalizeQuastSummaryAll {
         input: outdir = dir, file = hap_quast_summary.quast_metrics_together
     }
-    #scatter (report in hap_quast_summary.quast_metrics ) {
-    #    call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
-    #}
+    scatter (report in hap_quast_summary.quast_metrics ) {
+        call FF.FinalizeToFile as FinalizeQuastIndividualSummary  { input: outdir = dir, file = report }
+    }
 
     output {
         File? quast_report_html = FinalizeQuastReportHtml.gcs_path
@@ -74,7 +75,8 @@ workflow QCHaploAssemblies {
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
-        #File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
-        #File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[1]
+        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
+        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[1]
+        File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
     }
 }

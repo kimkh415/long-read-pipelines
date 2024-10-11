@@ -8,33 +8,31 @@ task Quast {
         description: "A task that runs QUAST to evaluate a given set of assemblies on a species with existing reference assembly. Entire Quast output will be tarballed"
     }
     parameter_meta {
-        ref:        "reference assembly fasta of the species"
-        fq:         "fastq file used to build assemblies"
+        ref:        "reference assembly of the species"
         assemblies: "list of assemblies to evaluate"
-        quast_disk_size: "disk size in GB"
     }
 
     input {
         File? ref
-        File fq
         Array[File] assemblies
         Boolean is_large = false
-        Int quast_disk_size = 500
 
         RuntimeAttr? runtime_attr_override
     }
 
     Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
-    Int disk_size = if minimal_disk_size > quast_disk_size then minimal_disk_size else quast_disk_size
+    Int disk_size = if minimal_disk_size > 100 then minimal_disk_size else 100
+
+    String size_optimization = if is_large then "--large" else " "
 
     command <<<
         set -eux
 
         num_core=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 
-        quast.py --no-icarus --large --space-efficient --no-snps --no-sv \
+        quast --no-icarus \
+              "~{size_optimization}" \
               --threads "${num_core}" \
-              --pacbio ~{fq} \
               ~{true='-r' false='' defined(ref)} \
               ~{select_first([ref, ""])} \
               ~{sep=' ' assemblies}
@@ -54,7 +52,7 @@ task Quast {
 
         Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
-        File quast_results = "quast_results.tar.gz"
+        File? quast_results = "quast_results.tar.gz"
     }
 
     ###################
@@ -65,7 +63,7 @@ task Quast {
         boot_disk_gb:          10,
         preemptible_tries:     0,
         max_retries:           0,
-        docker:                "staphb/quast:latest"  # "us.gcr.io/broad-dsp-lrma/lr-quast:5.2.0"
+        docker:                "us.gcr.io/broad-dsp-lrma/lr-quast:5.2.0"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -101,16 +99,16 @@ task SummarizeQuastReport {
             sed 's/>=/gt/g' | \
             tee report_map.txt
 
-        #for i in $(seq 2 $(awk '{print NF}' report_map.txt | sort -nu | tail -n 1))
-        #do
-        #    j=$(( i - 2 ))  # to make sure the primary, assuming it's the 0-th fed in to this task and the left-most value column
-        #    cut -d$'\t' -f1,${i} < report_map.txt > report_map_${j}.txt
-        #done
+        for i in $(seq 2 $(awk '{print NF}' report_map.txt | sort -nu | tail -n 1))
+        do
+            j=$(( i - 2 ))  # to make sure the primary, assuming it's the 0-th fed in to this task and the left-most value column
+            cut -d$'\t' -f1,${i} < report_map.txt > report_map_${j}.txt
+        done
     >>>
 
     output {
         File quast_metrics_together = "report_map.txt"
-        #Array[File] quast_metrics = glob("report_map_*.txt")
+        Array[File] quast_metrics = glob("report_map_*.txt")
     }
 
     runtime {
