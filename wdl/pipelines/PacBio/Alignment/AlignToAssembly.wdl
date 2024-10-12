@@ -1,6 +1,8 @@
 version 1.0
 
 import "../../../tasks/QC/SampleLevelAlignedMetrics.wdl" as COV
+import "../../../tasks/Utility/Utils.wdl" as Utils
+import "../../../tasks/Alignment/AlignReads.wdl" as AR
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
 task RunMinimap2 {
@@ -45,33 +47,51 @@ task RunMinimap2 {
     }
 }
 
-workflow Minimap2AlignmentWithMetrics {
+workflow Pbmm2AlignmentWithMetrics {
     input {
-        File ccs_fastq
+        File ccs_bams
         File reference_fasta_hap1
         File reference_fasta_hap2
         String sample_name
-        String preset = "map-hifi"
+        String lib_name = "RevioCCS"
+        String preset = "CCS"
         String outdir
         File? bed_to_compute_coverage
     }
 
-    call RunMinimap2 as AlignHap1 {
-        input:
-            ccs_fastq = ccs_fastq,
-            reference_fasta = reference_fasta_hap1,
-            sample_name = sample_name,
-            haplotype = "hap1",
-            preset = preset
+    #call RunMinimap2 as AlignHap1 {
+    #    input:
+    #        ccs_fastq = ccs_fastq,
+    #        reference_fasta = reference_fasta_hap1,
+    #        sample_name = sample_name,
+    #        haplotype = "hap1",
+    #        preset = preset
+    #}
+
+    if (length(ccs_bams) > 1) {
+        call Utils.MergeBams as MergeAllReads { input: bams = ccs_bams, prefix = sample_name }
     }
 
-    call RunMinimap2 as AlignHap2 {
+    File ccs_bam = select_first([MergeAllReads.merged_bam, ccs_bams[0]])
+
+    call PB.Align as AlignHap1 {
         input:
-            ccs_fastq = ccs_fastq,
-            reference_fasta = reference_fasta_hap2,
+            bam         = unaligned_bam,
+            ref_fasta   = reference_fasta_hap1,
             sample_name = sample_name,
-            haplotype = "hap2",
-            preset = preset
+            library     = lib_name,
+            map_preset  = preset,
+            drop_per_base_N_pulse_tags = true
+    }
+
+    call PB.Align as AlignHap2 {
+        input:
+            bam         = unaligned_bam,
+            ref_fasta   = reference_fasta_hap2,
+            sample_name = sample_name,
+            library     = lib_name,
+            map_preset  = preset,
+            drop_per_base_N_pulse_tags = true
     }
 
     call COV.SampleLevelAlignedMetrics as CoverageHap1 {
