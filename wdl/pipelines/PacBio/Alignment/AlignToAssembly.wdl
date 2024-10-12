@@ -76,7 +76,7 @@ workflow Pbmm2AlignmentWithMetrics {
 
     call PB.Align as AlignHap1 {
         input:
-            bam         = unaligned_bam,
+            bam         = ccs_bam,
             ref_fasta   = reference_fasta_hap1,
             sample_name = sample_name,
             library     = lib_name,
@@ -86,7 +86,7 @@ workflow Pbmm2AlignmentWithMetrics {
 
     call PB.Align as AlignHap2 {
         input:
-            bam         = unaligned_bam,
+            bam         = ccs_bam,
             ref_fasta   = reference_fasta_hap2,
             sample_name = sample_name,
             library     = lib_name,
