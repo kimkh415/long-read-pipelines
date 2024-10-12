@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/Utility/PBUtils.wdl" as PB
 import "../../../tasks/QC/SampleLevelAlignedMetrics.wdl" as COV
 import "../../../tasks/Utility/Utils.wdl" as Utils
 import "../../../tasks/Alignment/AlignReads.wdl" as AR
