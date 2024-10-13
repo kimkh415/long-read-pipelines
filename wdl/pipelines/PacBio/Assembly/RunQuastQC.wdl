@@ -5,10 +5,10 @@ import "../../../tasks/QC/Quast.wdl" as QuastEval
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
 
-workflow QCHaploAssemblies {
+workflow RunQuastQC {
 
     meta {
-        description: "Perform Quast QC on two haplotype resolved assemblies"
+        description: "Perform Quast QC on a primary and two haplotype resolved assemblies"
     }
     parameter_meta {
         prefix:						 "sample name"
@@ -42,10 +42,9 @@ workflow QCHaploAssemblies {
 
     #########################################################################################
     # Finalize data
-    String workflow_name = "QCHaploAssemblies"
+    String workflow_name = "RunQuastQC"
 
     String outdir = sub(gcs_out_root_dir, "/$", "") + "/" + workflow_name + "/~{prefix}"
-    String dir = outdir + "/assembly"
 
     # collect results
     call FF.FinalizeToFile as FinalizeQuastReportHtml {
