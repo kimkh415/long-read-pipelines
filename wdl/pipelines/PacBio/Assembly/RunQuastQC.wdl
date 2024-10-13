@@ -44,7 +44,7 @@ workflow RunQuastQC {
     # Finalize data
     String workflow_name = "RunQuastQC"
 
-    String outdir = sub(gcs_out_root_dir, "/$", "") + "/" + workflow_name + "/~{prefix}"
+    String dir = sub(gcs_out_root_dir, "/$", "") + "/" + workflow_name + "/~{prefix}"
 
     # collect results
     call FF.FinalizeToFile as FinalizeQuastReportHtml {
