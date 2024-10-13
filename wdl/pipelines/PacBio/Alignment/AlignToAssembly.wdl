@@ -26,7 +26,7 @@ workflow Minimap2AlignmentWithMetrics {
             RG          = "@RG\tID:" + sample_name + "\tPL:PacBio\tLB:" + lib_name + "\tSM:" + sample_name
     }
 
-    call PB.Align as AlignHap2 {
+    call AR.Minimap2 as AlignHap2 {
         input:
             reads         = ccs_fq,
             ref_fasta   = reference_fasta_hap2,
