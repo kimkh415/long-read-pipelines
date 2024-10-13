@@ -8,25 +8,19 @@ task Quast {
         description: "A task that runs QUAST to evaluate a given set of assemblies on a species with existing reference assembly. Entire Quast output will be tarballed"
     }
     parameter_meta {
-        ref_fasta:        "reference assembly of the species"
-        assembly_primary:    "primary assembly"
-        assembly_hap1:        "haplotype1 assembly"
-        assembly_hap2:        "haplotype2 assembly"
+        ref:        "reference assembly of the species"
+        assemblies: "list of assemblies to evaluate"
     }
 
     input {
-        File? ref_fasta
-        File assembly_primary
-        File assembly_hap1
-        File assembly_hap2
+        File? ref
+        Array[File] assemblies
         Boolean is_large = true
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Array[file] assemblies = [assembly_primary, assembly_hap1, assembly_hap2]
-
-    Int minimal_disk_size = 2*(ceil(size(ref_fasta, "GB") + size(assemblies, "GB")))
+    Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
     Int disk_size = if minimal_disk_size > 100 then minimal_disk_size else 100
 
     String size_optimization = if is_large then "--large" else " "
@@ -39,8 +33,8 @@ task Quast {
         quast --no-icarus \
               "~{size_optimization}" \
               --threads "${num_core}" \
-              ~{true='-r' false='' defined(ref_fasta)} \
-              ~{select_first([ref_fasta, ""])} \
+              ~{true='-r' false='' defined(ref)} \
+              ~{select_first([ref, ""])} \
               ~{sep=' ' assemblies}
 
         tree -h quast_results/
