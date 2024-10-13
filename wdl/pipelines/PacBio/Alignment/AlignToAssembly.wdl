@@ -50,7 +50,7 @@ task RunMinimap2 {
 
 workflow Pbmm2AlignmentWithMetrics {
     input {
-        File ccs_bams
+        Array[File] ccs_bams
         File reference_fasta_hap1
         File reference_fasta_hap2
         String sample_name
