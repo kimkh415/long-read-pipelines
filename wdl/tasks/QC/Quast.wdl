@@ -8,19 +8,25 @@ task Quast {
         description: "A task that runs QUAST to evaluate a given set of assemblies on a species with existing reference assembly. Entire Quast output will be tarballed"
     }
     parameter_meta {
-        ref:        "reference assembly of the species"
-        assemblies: "list of assemblies to evaluate"
+        ref_fasta:        "reference assembly of the species"
+        assembly_primary:    "primary assembly"
+        assembly_hap1:        "haplotype1 assembly"
+        assembly_hap2:        "haplotype2 assembly"
     }
 
     input {
-        File? ref
-        Array[File] assemblies
-        Boolean is_large = false
+        File? ref_fasta
+        File assembly_primary
+        File assembly_hap1
+        File assembly_hap2
+        Boolean is_large = true
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB")))
+    Array[file] assemblies = [assembly_primary, assembly_hap1, assembly_hap2]
+
+    Int minimal_disk_size = 2*(ceil(size(ref_fasta, "GB") + size(assemblies, "GB")))
     Int disk_size = if minimal_disk_size > 100 then minimal_disk_size else 100
 
     String size_optimization = if is_large then "--large" else " "
@@ -33,14 +39,14 @@ task Quast {
         quast --no-icarus \
               "~{size_optimization}" \
               --threads "${num_core}" \
-              ~{true='-r' false='' defined(ref)} \
-              ~{select_first([ref, ""])} \
+              ~{true='-r' false='' defined(ref_fasta)} \
+              ~{select_first([ref_fasta, ""])} \
               ~{sep=' ' assemblies}
 
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-            tar -zcvf quast_results.tar.gz quast_results/*
+            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
         fi
     >>>
 
@@ -52,7 +58,7 @@ task Quast {
 
         Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
-        File quast_results = "quast_results.tar.gz"
+        File? contigs_reports = "contigs_reports.tar.gz"
     }
 
     ###################
