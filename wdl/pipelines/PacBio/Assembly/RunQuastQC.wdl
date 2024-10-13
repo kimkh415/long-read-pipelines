@@ -28,21 +28,10 @@ workflow RunQuastQC {
         String gcs_out_root_dir
     }
 
-    Boolean is_gzipped = sub(ref_fasta_for_eval, ".*\\.", "") == "gz"
-
-    if (is_gzipped) {
-        call UnzipReference {
-            input:
-                gzipped_fasta = ref_fasta_for_eval
-        }
-    }
-
-    File ref_fasta = select_first([UnzipReference.unzipped_fasta, ref_fasta_for_eval])
-
     #########################################################################################
     call QuastEval.Quast as hap_quast {
         input:
-            ref = ref_fasta,
+            ref = ref_fasta_for_eval,
             is_large = true,
             assemblies = [assembly_primary, assembly_hap1, assembly_hap2]
     }
@@ -86,28 +75,3 @@ workflow RunQuastQC {
         File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
     }
 }
-
-task UnzipReference {  
-    input {  
-        File gzipped_fasta  
-    }  
-
-    String output_filename = basename(gzipped_fasta, ".gz")  
-
-    command <<<  
-        set -e  
-        gunzip -c ~{gzipped_fasta} > ~{output_filename}  
-    >>>  
-
-    output {  
-        File unzipped_fasta = output_filename  
-    }  
-
-    runtime {  
-        cpu: 2  
-        memory: "16 GiB"  
-        disks: "local-disk 20 HDD"  
-        docker: "ubuntu:20.04"  
-    }  
-}  
-
