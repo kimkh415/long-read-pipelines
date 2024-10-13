@@ -1,41 +1,39 @@
 version 1.0
 
-import "../../../tasks/Utility/PBUtils.wdl" as PB
 import "../../../tasks/QC/SampleLevelAlignedMetrics.wdl" as COV
-import "../../../tasks/Utility/Utils.wdl" as Utils
 import "../../../tasks/Alignment/AlignReads.wdl" as AR
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
-workflow Pbmm2AlignmentWithMetrics {
+workflow Minimap2AlignmentWithMetrics {
     input {
         File ccs_fq
         File reference_fasta_hap1
         File reference_fasta_hap2
         String sample_name
         String lib_name = "RevioCCS"
-        String preset = "CCS"
+        String preset = "map-hifi"
         String outdir
         File? bed_to_compute_coverage
     }
 
-    call PB.Align as AlignHap1 {
+    call AR.Minimap2 as AlignHap1 {
         input:
-            bam         = ccs_fq,
+            reads         = ccs_fq,
             ref_fasta   = reference_fasta_hap1,
-            sample_name = sample_name,
+            prefix = sample_name,
             library     = lib_name,
             map_preset  = preset,
-            drop_per_base_N_pulse_tags = true
+            RG          = "@RG\tID:" + sample_name + "\tPL:PacBio\tLB:" + lib_name + "\tSM:" + sample_name
     }
 
     call PB.Align as AlignHap2 {
         input:
-            bam         = ccs_fq,
+            reads         = ccs_fq,
             ref_fasta   = reference_fasta_hap2,
-            sample_name = sample_name,
+            prefix = sample_name,
             library     = lib_name,
             map_preset  = preset,
-            drop_per_base_N_pulse_tags = true
+            RG          = "@RG\tID:" + sample_name + "\tPL:PacBio\tLB:" + lib_name + "\tSM:" + sample_name
     }
 
     call COV.SampleLevelAlignedMetrics as CoverageHap1 {
