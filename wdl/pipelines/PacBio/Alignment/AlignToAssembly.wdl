@@ -6,51 +6,9 @@ import "../../../tasks/Utility/Utils.wdl" as Utils
 import "../../../tasks/Alignment/AlignReads.wdl" as AR
 import "../../../tasks/Utility/Finalize.wdl" as FF
 
-task RunMinimap2 {
-    input {
-        File ccs_fastq
-        File reference_fasta
-        String sample_name
-        String haplotype
-        String preset = "map-hifi"
-        Int threads = 16
-        Int memory = 80
-        Int disk_size = 100
-    }
-
-    command <<<
-        set -euo pipefail
-
-        minimap2 --version
-        samtools --version
-
-        minimap2 -ax ~{preset} \
-            -t ~{threads} \
-            ~{reference_fasta} \
-            ~{ccs_fastq} \
-            > ~{sample_name}.~{haplotype}.sam
-
-        samtools sort -@ ~{threads} -O BAM -o ~{sample_name}.~{haplotype}.sorted.bam ~{sample_name}.~{haplotype}.sam
-        samtools index -@ ~{threads} ~{sample_name}.~{haplotype}.sorted.bam
-
-    >>>
-
-    output {
-        File aligned_bam = "~{sample_name}.~{haplotype}.sorted.bam"
-        File aligned_bai = "~{sample_name}.~{haplotype}.sorted.bam.bai"
-    }
-
-    runtime {
-        docker: "quay.io/biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:1679e915ddb9d6b4abda91880c4b48857d471bd8-0"
-        memory: memory
-        cpu: threads
-        disks: "local-disk " + disk_size + " HDD"
-    }
-}
-
 workflow Pbmm2AlignmentWithMetrics {
     input {
-        Array[File] ccs_bams
+        File ccs_fq
         File reference_fasta_hap1
         File reference_fasta_hap2
         String sample_name
@@ -60,24 +18,9 @@ workflow Pbmm2AlignmentWithMetrics {
         File? bed_to_compute_coverage
     }
 
-    #call RunMinimap2 as AlignHap1 {
-    #    input:
-    #        ccs_fastq = ccs_fastq,
-    #        reference_fasta = reference_fasta_hap1,
-    #        sample_name = sample_name,
-    #        haplotype = "hap1",
-    #        preset = preset
-    #}
-
-    if (length(ccs_bams) > 1) {
-        call Utils.MergeBams as MergeAllReads { input: bams = ccs_bams, prefix = sample_name }
-    }
-
-    File ccs_bam = select_first([MergeAllReads.merged_bam, ccs_bams[0]])
-
     call PB.Align as AlignHap1 {
         input:
-            bam         = ccs_bam,
+            bam         = ccs_fq,
             ref_fasta   = reference_fasta_hap1,
             sample_name = sample_name,
             library     = lib_name,
@@ -87,7 +30,7 @@ workflow Pbmm2AlignmentWithMetrics {
 
     call PB.Align as AlignHap2 {
         input:
-            bam         = ccs_bam,
+            bam         = ccs_fq,
             ref_fasta   = reference_fasta_hap2,
             sample_name = sample_name,
             library     = lib_name,
