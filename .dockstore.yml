@@ -165,3 +165,6 @@ workflows:
 - name: AlignToAssembly
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Alignment/AlignToAssembly.wdl
+- name: AlignAssemblyToRef
+  subclass: wdl
+  primaryDescriptorPath: /wdl/pipelines/PacBio/Alignment/AlignAssemblyToRef.wdl
