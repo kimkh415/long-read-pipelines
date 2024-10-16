@@ -39,7 +39,7 @@ task Quast {
               --no-sv \
               "~{size_optimization}" \
               --threads "${num_core}" \
-              -r ref \
+              -r ~{ref} \
               --bam ~{sep="," bams} \
               --ref-bam refbam \
               ~{sep=' ' assemblies}
