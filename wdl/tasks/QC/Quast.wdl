@@ -10,15 +10,15 @@ task Quast {
     parameter_meta {
         ref:        "reference assembly of the species"
         assemblies: "list of assemblies to evaluate"
-				bam:				"alignment of the reads to assemblies"
-				refbam:			"alignment of the reads to the reference"
+        bam:        "alignment of the reads to assemblies"
+        refbam:      "alignment of the reads to the reference"
     }
 
     input {
         File ref
         Array[File] assemblies
-				Array[File] bam  # read aligned to assemblies
-				File refbam  # read aligned to ref
+        Array[File] bam  # read aligned to assemblies
+        File refbam  # read aligned to ref
         Boolean is_large = true
 
         RuntimeAttr? runtime_attr_override
@@ -35,8 +35,8 @@ task Quast {
         num_core=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 
         quast --no-icarus \
-							--no-snps \
-							--no-sv \
+              --no-snps \
+              --no-sv \
               "~{size_optimization}" \
               --threads "${num_core}" \
               ~{true='-r' false='' defined(ref)} \
