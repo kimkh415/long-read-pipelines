@@ -41,7 +41,7 @@ task Quast {
               --threads "${num_core}" \
               -r ~{ref} \
               --bam ~{sep="," bams} \
-              --ref-bam refbam \
+              --ref-bam ~{refbam} \
               ~{sep=' ' assemblies}
 
         tree -h quast_results/
