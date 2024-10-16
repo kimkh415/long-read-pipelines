@@ -10,11 +10,15 @@ task Quast {
     parameter_meta {
         ref:        "reference assembly of the species"
         assemblies: "list of assemblies to evaluate"
+				bam:				"alignment of the reads to assemblies"
+				refbam:			"alignment of the reads to the reference"
     }
 
     input {
-        File? ref
+        File ref
         Array[File] assemblies
+				Array[File] bam  # read aligned to assemblies
+				File refbam  # read aligned to ref
         Boolean is_large = true
 
         RuntimeAttr? runtime_attr_override
@@ -35,12 +39,16 @@ task Quast {
               --threads "${num_core}" \
               ~{true='-r' false='' defined(ref)} \
               ~{select_first([ref, ""])} \
+              ~{true='--bam' false='' defined(bam)} \
+              ~{select_first([bam, ""])} \
+              ~{true='--ref-bam' false='' defined(refbam)} \
+              ~{select_first([refbam, ""])} \
               ~{sep=' ' assemblies}
 
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
+            tar -zcvf reports.tar.gz quast_results/*
         fi
     >>>
 
@@ -52,7 +60,7 @@ task Quast {
 
         Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
-        File? contigs_reports = "contigs_reports.tar.gz"
+        File reports = "reports.tar.gz"
     }
 
     ###################

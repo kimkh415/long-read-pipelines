@@ -13,18 +13,22 @@ workflow RunQuastQC {
     parameter_meta {
         prefix:						 "sample name"
         ref_fasta_for_eval: "Reference Fasta used for evaluating "
-        assembly_primary:   "primary assembly fa"
         assembly_hap1:         "hap1 assembly fa"
         assembly_hap2:         "hap2 assembly fa"
+				bam1:									"reads aligned to hap1"
+				bam2:									"reads aligned to hap2"
+				refbam:							"reads aligned to the ref"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
 
     input {
         String prefix
         File ref_fasta_for_eval
-        File assembly_primary
         File assembly_hap1
         File assembly_hap2
+				File bam1
+				File bam2
+				File refbam
         String gcs_out_root_dir
     }
 
@@ -32,8 +36,9 @@ workflow RunQuastQC {
     call QuastEval.Quast as hap_quast {
         input:
             ref = ref_fasta_for_eval,
-            is_large = true,
-            assemblies = [assembly_primary, assembly_hap1, assembly_hap2]
+            assemblies = [assembly_hap1, assembly_hap2],
+						bam = [bam1, bam2],
+						refbam = refbam
     }
 
     call QuastEval.SummarizeQuastReport as hap_quast_summary {
@@ -70,8 +75,7 @@ workflow RunQuastQC {
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
-        File? quast_summary_on_primary = FinalizeQuastIndividualSummary.gcs_path[0]
-        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[1]
-        File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[2]
+        File? quast_summary_on_H0 = FinalizeQuastIndividualSummary.gcs_path[0]
+        File? quast_summary_on_H1 = FinalizeQuastIndividualSummary.gcs_path[1]
     }
 }
