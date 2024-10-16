@@ -37,7 +37,7 @@ workflow RunQuastQC {
         input:
             ref = ref_fasta_for_eval,
             assemblies = [assembly_hap1, assembly_hap2],
-            bam = [bam1, bam2],
+            bams = [bam1, bam2],
             refbam = refbam
     }
 
