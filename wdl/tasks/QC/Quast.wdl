@@ -39,7 +39,6 @@ task Quast {
               --no-sv \
               --no-read-stats \
               --space-efficient \
-              --no-plots \
               "~{size_optimization}" \
               --threads "${num_core}" \
               -r ~{ref} \
@@ -69,6 +68,8 @@ task Quast {
         File report_html = "quast_results/latest/report.html"
 
         Array[File] report_in_various_formats = glob("quast_results/latest/report.*")
+
+        Array[File] plots = glob("quast_results/latest/basic_stats/*.pdf")
 
         File contigs_reports = "contigs_reports.tar.gz"
     }
