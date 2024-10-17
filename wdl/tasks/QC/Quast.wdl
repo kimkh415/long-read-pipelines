@@ -10,14 +10,14 @@ task Quast {
     parameter_meta {
         ref:        "reference assembly of the species"
         assemblies: "list of assemblies to evaluate"
-        bams:        "alignment of the reads to assemblies"
+        #bams:        "alignment of the reads to assemblies"
         refbam:      "alignment of the reads to the reference"
     }
 
     input {
         File ref
         Array[File] assemblies
-        Array[File] bams  # read aligned to assemblies
+        #Array[File] bams  # read aligned to assemblies
         File refbam  # read aligned to ref
         Boolean is_large = true
 
