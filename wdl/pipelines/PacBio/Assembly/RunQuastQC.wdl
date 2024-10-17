@@ -15,8 +15,6 @@ workflow RunQuastQC {
         ref_fasta_for_eval: "Reference Fasta used for evaluating "
         assembly_hap1:         "hap1 assembly fa"
         assembly_hap2:         "hap2 assembly fa"
-        bam1:                  "reads aligned to hap1"
-        bam2:                  "reads aligned to hap2"
         refbam:              "reads aligned to the ref"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
@@ -26,8 +24,6 @@ workflow RunQuastQC {
         File ref_fasta_for_eval
         File assembly_hap1
         File assembly_hap2
-        File bam1
-        File bam2
         File refbam
         String gcs_out_root_dir
     }
@@ -37,7 +33,6 @@ workflow RunQuastQC {
         input:
             ref = ref_fasta_for_eval,
             assemblies = [assembly_hap1, assembly_hap2],
-            bams = [bam1, bam2],
             refbam = refbam
     }
 
