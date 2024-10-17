@@ -17,14 +17,14 @@ task Quast {
     input {
         File ref
         Array[File] assemblies
-        #Array[File] bams  # read aligned to assemblies
+        #Array[File] bams  # read aligned to assemblies # --bam ~{sep="," bams} \
         File refbam  # read aligned to ref
         Boolean is_large = true
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB") + size(bams, "GB") + size(refbam, "GB")))
+    Int minimal_disk_size = 2*(ceil(size(ref, "GB") + size(assemblies, "GB") + size(refbam, "GB")))
     Int disk_size = if minimal_disk_size > 200 then minimal_disk_size else 200
 
     String size_optimization = if is_large then "--large" else " "
@@ -41,7 +41,6 @@ task Quast {
               "~{size_optimization}" \
               --threads "${num_core}" \
               -r ~{ref} \
-              --bam ~{sep="," bams} \
               --ref-bam ~{refbam} \
               ~{sep=' ' assemblies}
 
