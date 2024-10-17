@@ -56,8 +56,8 @@ workflow RunQuastQC {
     call FF.FinalizeAndCompress as FinalizeQuastReports {
         input: outdir = dir, files = hap_quast.report_in_various_formats, prefix = prefix + ".quast_reports"
     }
-    call FF.FinalizeToFile as FinalizeQuastReportZip {
-        input: outdir = dir, file = hap_quast.reports
+    call FF.FinalizeToFile as FinalizeQuastContigsReport {
+        input: outdir = dir, file = hap_quast.contigs_reports
     }
     call FF.FinalizeToFile as FinalizeQuastSummaryAll {
         input: outdir = dir, file = hap_quast_summary.quast_metrics_together
@@ -70,7 +70,7 @@ workflow RunQuastQC {
         File? quast_report_html = FinalizeQuastReportHtml.gcs_path
         File? quast_report_txt = FinalizeQuastReportTxt.gcs_path
         File? quast_report_in_various_formats = FinalizeQuastReports.gcs_path
-        File? quast_reports = FinalizeQuastReportZip.gcs_path
+        File? quast_contigs_report = FinalizeQuastContigsReport.gcs_path
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
