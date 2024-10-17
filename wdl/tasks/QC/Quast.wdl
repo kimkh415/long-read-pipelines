@@ -44,6 +44,8 @@ task Quast {
               --ref-bam ~{refbam} \
               ~{sep=' ' assemblies}
 
+        echo "Quast finished!!!"
+
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
