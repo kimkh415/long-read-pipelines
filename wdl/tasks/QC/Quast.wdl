@@ -51,8 +51,17 @@ task Quast {
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
         fi
+
+        if [[ -d quast_results/contigs_reports ]]; then
+            echo "contigs_reports directory found, creating tar ball"
+            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
+        else
+            echo "WARNING: contigs_reports directory not found, skipping tar ball creation"
+        fi
+
+        echo "Current working directory: $(pwd)"
+        echo "Available disk space: $(df -h . | awk 'NR==2 {print $4}')"
     >>>
 
     output {
@@ -61,7 +70,7 @@ task Quast {
 
         Array[File] report_in_various_formats = glob("quast_results/latest/report.*")
 
-        File? contigs_reports = "contigs_reports.tar.gz"
+        File contigs_reports = "contigs_reports.tar.gz"
     }
 
     ###################
