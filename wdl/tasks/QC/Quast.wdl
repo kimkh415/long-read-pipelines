@@ -51,7 +51,7 @@ task Quast {
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-            tar -zcvf reports.tar.gz quast_results/*
+            tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
         fi
     >>>
 
@@ -61,7 +61,7 @@ task Quast {
 
         Array[File] report_in_various_formats = glob("quast_results/latest/report.*")
 
-        File reports = "reports.tar.gz"
+        File? contigs_reports = "contigs_reports.tar.gz"
     }
 
     ###################
