@@ -50,9 +50,6 @@ task Quast {
         tree -h quast_results/
 
         if [[ -d quast_results/contigs_reports ]]; then
-        fi
-
-        if [[ -d quast_results/contigs_reports ]]; then
             echo "contigs_reports directory found, creating tar ball"
             tar -zcvf contigs_reports.tar.gz quast_results/contigs_reports
         else
