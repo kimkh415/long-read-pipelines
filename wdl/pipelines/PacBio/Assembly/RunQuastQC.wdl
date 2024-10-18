@@ -70,7 +70,6 @@ workflow RunQuastQC {
         File? quast_report_html = FinalizeQuastReportHtml.gcs_path
         File? quast_report_txt = FinalizeQuastReportTxt.gcs_path
         File? quast_report_in_various_formats = FinalizeQuastReports.gcs_path
-        #File? quast_contigs_report = FinalizeQuastContigsReport.gcs_path
 
         File? quast_summary_on_all = FinalizeQuastSummaryAll.gcs_path
 
