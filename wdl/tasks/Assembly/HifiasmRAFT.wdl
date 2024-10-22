@@ -14,7 +14,7 @@ workflow FragmentReadsRAFT {
 
     input {
         File reads
-        Int genome_length
+        Long genome_length
 
         String zones = "us-central1-a us-central1-b us-central1-c"
     }
@@ -215,7 +215,7 @@ task InstallRAFT {
 task EstimateCoverage {
     input {
         File input_fastq
-        Int estimated_genome_size
+        Long estimated_genome_size
         Int cpu = 1
         Int memory_gb = 4
         Int max_retries = 3
