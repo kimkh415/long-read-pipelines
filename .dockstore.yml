@@ -168,3 +168,7 @@ workflows:
 - name: AlignAssemblyToRef
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Alignment/AlignAssemblyToRef.wdl
+- name: PBAssembleWithHifiasmRAFT
+  subclass: wdl
+  primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/PBAssembleWithHifiasmRAFT.wdl
+
