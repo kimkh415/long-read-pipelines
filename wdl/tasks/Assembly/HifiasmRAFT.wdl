@@ -2,7 +2,7 @@ version 1.0
 
 import "../../structs/Structs.wdl"
 
-workflow Hifiasm {
+workflow FragmentReadsRAFT {
 
     meta {
         description: "We run two HiFiasm jobs, one for getting alternative contigs and one for getting the haplotigs. And we take the primary assembly from the first job."
