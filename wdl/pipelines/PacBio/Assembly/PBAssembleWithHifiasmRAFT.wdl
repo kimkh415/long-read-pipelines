@@ -20,7 +20,7 @@ workflow PBAssembleWithHifiasm {
 
     input {
         Array[File] ccs_fqs
-        Int genome_length = 2922918302
+        Long genome_length = 2922918302
         String prefix
 
         String gcs_out_root_dir
