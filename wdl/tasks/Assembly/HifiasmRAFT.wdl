@@ -183,6 +183,7 @@ task InstallRAFT {
         set -euxo pipefail
 
         apt-get update && apt-get install -y git build-essential
+        apt-get install libz-dev
 
         mkdir -p raft_install
         cd raft_install
