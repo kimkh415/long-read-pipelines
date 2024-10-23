@@ -181,6 +181,9 @@ task InstallRAFT {
 
     command <<<
         set -euxo pipefail
+
+        apt-get update && apt-get install -y git build-essential
+
         mkdir -p raft_install
         cd raft_install
 
@@ -207,6 +210,7 @@ task InstallRAFT {
     runtime {
         docker: "ubuntu:latest"
         cpu: cpu
+        disks: "local-disk 20 HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
     }
@@ -234,6 +238,7 @@ task EstimateCoverage {
     runtime {
         docker: "ubuntu:latest"
         cpu: cpu
+        disks: "local-disk 20 HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
     }
@@ -245,8 +250,9 @@ task RunRAFT {
         File overlaps
         Int coverage
         String raft_bin_path
-        Int cpu = 4
-        Int memory_gb = 16
+        Int cpu = 32
+        Int memory_gb = 100
+        Int disk_size = 100
         Int max_retries = 3
     }
 
@@ -267,6 +273,7 @@ task RunRAFT {
     runtime {
         docker: "ubuntu:latest"
         cpu: cpu
+        disks: "local-disk " + disk_size + " HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
     }
