@@ -183,7 +183,7 @@ task InstallRAFT {
         set -euxo pipefail
 
         apt-get update && apt-get install -y git build-essential
-        apt-get install libz-dev
+        apt-get install -y libz-dev
 
         mkdir -p raft_install
         cd raft_install
@@ -204,8 +204,8 @@ task InstallRAFT {
     >>>
 
     output {
-        File raft_executable = read_string("raft_executable_path.txt")
-        String raft_bin_path = read_string("raft_bin_path.txt")
+        File raft_executable = "raft_install/RAFT/raft_executable_path.txt"
+        String raft_bin_path = read_string("raft_install/RAFT/raft_bin_path.txt")
     }
 
     runtime {
