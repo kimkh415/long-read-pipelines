@@ -121,11 +121,11 @@ task GetOverlaps {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int proposed_memory = 4 * ceil(size(ec_reads, "GB"))
-    Int memory = if proposed_memory < 96 then 96 else proposed_memory  # this 96 magic number is purely empirical
+    Int proposed_memory = 6 * ceil(size(ec_reads, "GB"))
+    Int memory = if proposed_memory < 128 then 128 else proposed_memory  # this 96 magic number is purely empirical
     Int n = memory / 4  # this might be an odd number
     Int num_cpus_proposal = if (n/2)*2 == n then n else n+1  # a hack because WDL doesn't have modulus operator
-    Int num_cpus = if num_cpus_proposal > 96 then 96 else num_cpus_proposal
+    Int num_cpus = if num_cpus_proposal > 48 then 48 else num_cpus_proposal
 
     Int disk_size = 10 * ceil(size(ec_reads, "GB"))
 
@@ -239,7 +239,7 @@ task EstimateCoverage {
     runtime {
         docker: "ubuntu:latest"
         cpu: cpu
-        disks: "local-disk 20 HDD"
+        disks: "local-disk 100 HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
     }
