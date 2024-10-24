@@ -157,7 +157,7 @@ task GetOverlaps {
         boot_disk_gb:       10,
         preemptible_tries:  0,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-hifiasm:0.16.1"
+        docker:             "quay.io/biocontainers/hifiasm:0.19.8--h5b5514e_0"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
