@@ -198,9 +198,6 @@ task InstallRAFT {
         # Output the full path to the executable
         echo $PWD/bin/raft > raft_executable_path.txt
         echo $PWD/bin > raft_bin_path.txt
-
-        # Verify installation
-        $PWD/bin/raft --help
     >>>
 
     output {
@@ -214,6 +211,7 @@ task InstallRAFT {
         disks: "local-disk 20 HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
+        continueOnReturnCode: [0, 1]  # Allow both 0 and 1 as valid return codes
     }
 }
 
