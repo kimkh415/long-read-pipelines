@@ -179,7 +179,7 @@ task InstallRAFT {
     input {
         Int cpu = 2
         Int memory_gb = 4
-        Int max_retries = 3
+        Int max_retries = 1
     }
 
     command <<<
@@ -199,8 +199,8 @@ task InstallRAFT {
         mv raft $PWD/bin/
 
         # Output the full path to the executable
-        echo $PWD/bin/raft > raft_executable_path.txt
-        echo $PWD/bin > raft_bin_path.txt
+        echo $PWD/bin/raft | tee raft_executable_path.txt
+        echo $PWD/bin | tee raft_bin_path.txt
     >>>
 
     output {
