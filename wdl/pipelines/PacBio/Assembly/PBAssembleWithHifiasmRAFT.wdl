@@ -14,6 +14,7 @@ workflow PBAssembleWithHifiasm {
         ccs_fqs:            "GCS path to CCS fastq files"
         genome_length:      "Estimated length of genome in bases"  # 2922918302 chrom 1-22 only
         prefix:             "prefix for output files"
+        raft_disk_size:     "Disk size in GB [300]"
 
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
@@ -22,6 +23,7 @@ workflow PBAssembleWithHifiasm {
         Array[File] ccs_fqs
         String genome_length = "2922918302"
         String prefix
+        raft_disk_size = 300
 
         String gcs_out_root_dir
     }
@@ -35,7 +37,8 @@ workflow PBAssembleWithHifiasm {
     call RAFT.FragmentReadsRAFT {
         input:
             reads = ccs_fq,
-            genome_length = genome_length
+            genome_length = genome_length,
+            raft_disk_size = raft_disk_size
     }
 
     call HA.Hifiasm {
