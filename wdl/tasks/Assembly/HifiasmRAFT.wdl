@@ -54,6 +54,7 @@ workflow FragmentReadsRAFT {
         File overlaps = GetOverlaps.overlaps
         File fragmented_reads = RunRAFT.fragmented_reads  
         File raft_log = RunRAFT.log
+        File raft_executable = InstallRAFT.raft_executable
     }
 }
 
