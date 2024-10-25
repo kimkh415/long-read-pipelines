@@ -10,12 +10,13 @@ workflow FragmentReadsRAFT {
     parameter_meta {
         reads:    "reads (in fasta or fastq format, compressed or uncompressed)"
         genome_length:  "estimated length of genome in bases"
+        raft_disk_size:  "disk space in GB for RunRAFT"
     }
 
     input {
         File reads
         String genome_length
-
+        Int raft_disk_size = 300
         String zones = "us-central1-a us-central1-b us-central1-c"
     }
 
@@ -44,7 +45,8 @@ workflow FragmentReadsRAFT {
             error_corrected_reads = GetErrorCorrectedReads.ec_reads,
             overlaps = GetOverlaps.overlaps,
             coverage = EstimateCoverage.coverage,
-            raft_bin_path = InstallRAFT.raft_bin_path
+            raft_bin_path = InstallRAFT.raft_bin_path,
+            disk_size = raft_disk_size
     }
 
     output {
