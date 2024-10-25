@@ -23,7 +23,7 @@ workflow PBAssembleWithHifiasm {
         Array[File] ccs_fqs
         String genome_length = "2922918302"
         String prefix
-        raft_disk_size = 300
+        Int raft_disk_size = 300
 
         String gcs_out_root_dir
     }
