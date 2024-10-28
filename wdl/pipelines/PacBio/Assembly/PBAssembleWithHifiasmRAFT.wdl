@@ -65,6 +65,9 @@ workflow PBAssembleWithHifiasm {
     }
     String finalized_merged_fq_path = select_first([FinalizeMergedFQ.gcs_path, CompressAndFinalizeMergedFQ.gcs_path])
 
+    # RAFT results
+    call FF.CompressAndFinalize as FinalizeRaftECReads  { input: outdir = outdir + "/RAFT", file = FragmentReadsRAFT.ec_reads }
+    call FF.CompressAndFinalize as FinalizeRaftOverlaps  { input: outdir = outdir + "/RAFT", file = FragmentReadsRAFT.overlaps }
 
     # assembly results themselves
     call FF.CompressAndFinalize as FinalizeHifiasmPrimaryGFA   { input: outdir = dir, file = Hifiasm.primary_gfa }
@@ -81,6 +84,10 @@ workflow PBAssembleWithHifiasm {
 
     output {
         File merged_fq = finalized_merged_fq_path
+
+        Int hifiasm_raft_est_cov = FragmentReadsRAFT.coverage
+        File hifiasm_raft_ec_reads = FinalizeRaftECReads.gcs_path
+        File hifiasm_raft_overlaps = FinalizeRaftOverlaps.gcs_path
 
         File hifiasm_raft_primary_gfa  = FinalizeHifiasmPrimaryGFA.gcs_path
         File hifiasm_raft_primary_tigs = FinalizeHifiasmPrimaryFA.gcs_path
