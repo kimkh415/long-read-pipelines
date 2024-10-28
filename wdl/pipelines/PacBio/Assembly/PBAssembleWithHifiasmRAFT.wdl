@@ -18,6 +18,7 @@ workflow PBAssembleWithHifiasm {
         overlaps_paf:       "from hifiasm all to all alignment overlaps"
         prefix:             "prefix for output files"
         raft_disk_size:     "Disk size in GB [300]"
+        raft_memory:        "Memory in GB [200]"
 
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
     }
@@ -31,6 +32,7 @@ workflow PBAssembleWithHifiasm {
 
         String prefix
         Int raft_disk_size = 300
+        Int raft_memory = 200
 
         String gcs_out_root_dir
     }
@@ -48,7 +50,8 @@ workflow PBAssembleWithHifiasm {
             est_coverage = est_coverage,
             error_correct_read_fa = error_correct_read_fa,
             overlaps_paf = overlaps_paf,
-            raft_disk_size = raft_disk_size
+            raft_disk_size = raft_disk_size,
+            raft_memory = raft_memory
     }
 
     call HA.Hifiasm {
