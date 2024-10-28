@@ -10,7 +10,8 @@ workflow FragmentReadsRAFT {
     parameter_meta {
         reads:    "reads (in fasta or fastq format, compressed or uncompressed)"
         genome_length:  "estimated length of genome in bases"
-        raft_disk_size:  "disk space in GB for RunRAFT"
+        raft_disk_size:  "disk space in GB for RAFT"
+        raft_memory:     "memory in GB for RAFT"  
         est_coverage:   "integer of estimated coverage from raw reads"
         error_correct_read_fa:    "from hifiasm error correct reads"
         overlaps_paf:     "from hifiasm all to all alignment overlaps"
@@ -23,6 +24,7 @@ workflow FragmentReadsRAFT {
         File? error_correct_read_fa
         File? overlaps_paf
         Int raft_disk_size = 300
+        Int raft_memory = 200
         String zones = "us-central1-a us-central1-b us-central1-c"
     }
 
@@ -59,7 +61,8 @@ workflow FragmentReadsRAFT {
             error_corrected_reads = ec_reads_output,
             overlaps = overlaps_output,
             coverage = cov_output,
-            disk_size = raft_disk_size
+            disk_size = raft_disk_size,
+            memory_gb = raft_memory
     }
 
     output {
@@ -211,84 +214,6 @@ task EstimateCoverage {
         docker: "ubuntu:latest"
         cpu: cpu
         disks: "local-disk 100 HDD"
-        memory: "~{memory_gb} GB"
-        maxRetries: max_retries
-    }
-}
-
-task InstallRAFT {
-    input {
-        Int cpu = 2
-        Int memory_gb = 4
-        Int max_retries = 1
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        apt-get update && apt-get install -y git build-essential
-        apt-get install -y libz-dev
-
-        mkdir -p raft_install
-        cd raft_install
-
-        git clone https://github.com/at-cg/RAFT.git
-        cd RAFT
-        make
-
-        mkdir -p $PWD/bin
-        mv raft $PWD/bin/
-
-        # Output the full path to the executable
-        echo $PWD/bin/raft | tee raft_executable_path.txt
-        echo $PWD/bin | tee raft_bin_path.txt
-    >>>
-
-    output {
-        File raft_executable = "raft_install/RAFT/raft_executable_path.txt"
-        String raft_bin_path = read_string("raft_install/RAFT/raft_bin_path.txt")
-    }
-
-    runtime {
-        docker: "ubuntu:latest"
-        cpu: cpu
-        disks: "local-disk 20 HDD"
-        memory: "~{memory_gb} GB"
-        maxRetries: max_retries
-        continueOnReturnCode: [0, 1]  # Allow both 0 and 1 as valid return codes
-    }
-}
-
-task RunRAFT {
-    input {
-        File error_corrected_reads
-        File overlaps
-        Int coverage
-        String raft_bin_path
-        Int cpu = 32
-        Int memory_gb = 100
-        Int disk_size = 100
-        Int max_retries = 3
-    }
-
-    command <<<
-        set -euxo pipefail
-        # Add RAFT to the PATH
-        export PATH=$PATH:~{raft_bin_path}
-
-        # Now we can use RAFT directly
-        raft -e ~{coverage} -o fragmented ~{error_corrected_reads} ~{overlaps} > raft.log
-    >>>
-
-    output {
-        File fragmented_reads = "fragmented.reads.fasta"
-        File log = "raft.log"
-    }
-
-    runtime {
-        docker: "ubuntu:latest"
-        cpu: cpu
-        disks: "local-disk " + disk_size + " HDD"
         memory: "~{memory_gb} GB"
         maxRetries: max_retries
     }
