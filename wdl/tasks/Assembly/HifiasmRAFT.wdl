@@ -66,8 +66,8 @@ workflow FragmentReadsRAFT {
         File ec_reads  = ec_reads_output
         File overlaps = overlaps_output
         Int coverage = cov_output
-        File fragmented_reads = RunRAFT.fragmented_reads  
-        File raft_log = RunRAFT.log
+        File fragmented_reads = InstallAndRunRAFT.fragmented_reads  
+        File raft_log = InstallAndRunRAFT.log
     }
 }
 
