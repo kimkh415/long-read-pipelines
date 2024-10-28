@@ -50,22 +50,22 @@ workflow FragmentReadsRAFT {
         }
     }
 
-    ec_reads = select_first([error_correct_read_fa, GetErrorCorrectedReads.ec_reads])
-    overlaps = select_first([overlaps_paf, GetOverlaps.overlaps])
-    cov = select_first([est_coverage, EstimateCoverage.coverage])
+    File ec_reads_output = select_first([error_correct_read_fa, GetErrorCorrectedReads.ec_reads])
+    File overlaps_output = select_first([overlaps_paf, GetOverlaps.overlaps])
+    Int cov_output = select_first([est_coverage, EstimateCoverage.coverage])
 
     call InstallAndRunRAFT {
         input:
-            error_corrected_reads = ec_reads,
-            overlaps = overlaps,
-            coverage = cov,
+            error_corrected_reads = ec_reads_output,
+            overlaps = overlaps_output,
+            coverage = cov_output,
             disk_size = raft_disk_size
     }
 
     output {
-        File ec_reads  = ec_reads
-        File overlaps = overlaps
-        Int coverage = cov
+        File ec_reads  = ec_reads_output
+        File overlaps = overlaps_output
+        Int coverage = cov_output
         File fragmented_reads = RunRAFT.fragmented_reads  
         File raft_log = RunRAFT.log
     }
