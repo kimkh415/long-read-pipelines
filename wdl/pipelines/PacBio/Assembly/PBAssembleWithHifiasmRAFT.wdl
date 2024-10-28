@@ -12,7 +12,10 @@ workflow PBAssembleWithHifiasm {
     }
     parameter_meta {
         ccs_fqs:            "GCS path to CCS fastq files"
-        genome_length:      "Estimated length of genome in bases"  # 2922918302 chrom 1-22 only
+        genome_length:      "Estimated length of genome in bases"
+        est_coverage:       "estimated fold coverage of the reads"
+        error_correct_read_fa: "from hifiasm error correct reads"
+        overlaps_paf:       "from hifiasm all to all alignment overlaps"
         prefix:             "prefix for output files"
         raft_disk_size:     "Disk size in GB [300]"
 
@@ -22,6 +25,10 @@ workflow PBAssembleWithHifiasm {
     input {
         Array[File] ccs_fqs
         String genome_length = "2922918302"
+        Int? est_coverage
+        File? error_correct_read_fa
+        File? overlaps_paf
+
         String prefix
         Int raft_disk_size = 300
 
@@ -38,6 +45,9 @@ workflow PBAssembleWithHifiasm {
         input:
             reads = ccs_fq,
             genome_length = genome_length,
+            est_coverage = est_coverage,
+            error_correct_read_fa = error_correct_read_fa,
+            overlaps_paf = overlaps_paf,
             raft_disk_size = raft_disk_size
     }
 
