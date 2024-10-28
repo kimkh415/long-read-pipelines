@@ -5,56 +5,69 @@ import "../../structs/Structs.wdl"
 workflow FragmentReadsRAFT {
 
     meta {
-        description: "We run two HiFiasm jobs, one for getting alternative contigs and one for getting the haplotigs. And we take the primary assembly from the first job."
+        description: "After fragmenting the reads using RAFT, we run two HiFiasm jobs, one for getting alternative contigs and one for getting the haplotigs."
     }
     parameter_meta {
         reads:    "reads (in fasta or fastq format, compressed or uncompressed)"
         genome_length:  "estimated length of genome in bases"
         raft_disk_size:  "disk space in GB for RunRAFT"
+        est_coverage:   "integer of estimated coverage from raw reads"
+        error_correct_read_fa:    "from hifiasm error correct reads"
+        overlaps_paf:     "from hifiasm all to all alignment overlaps"
     }
 
     input {
         File reads
         String genome_length
+        Int? est_coverage
+        File? error_correct_read_fa
+        File? overlaps_paf
         Int raft_disk_size = 300
         String zones = "us-central1-a us-central1-b us-central1-c"
     }
 
-    call InstallRAFT {}
-
-    call EstimateCoverage {
-        input:
-            input_fastq = reads,
-            estimated_genome_size = genome_length
-    }
-    
-    call GetErrorCorrectedReads {
-        input:
-            reads  = reads,
-            zones = zones
+    if (!defined(est_coverage)) {
+        call EstimateCoverage {
+            input:
+                input_fastq = reads,
+                estimated_genome_size = genome_length
+        }
     }
 
-    call GetOverlaps {
-        input:
-            ec_reads = GetErrorCorrectedReads.ec_reads,
-            zones = zones
+    if (!defined(error_correct_read_fa)) {
+        call GetErrorCorrectedReads {
+            input:
+                reads = reads,
+                zones = zones
+        }
     }
 
-    call RunRAFT {
+    if (!defined(overlaps_paf)) {
+        call GetOverlaps {
+            input:
+                ec_reads = select_first([error_correct_read_fa, GetErrorCorrectedReads.ec_reads]),
+                zones = zones
+        }
+    }
+
+    ec_reads = select_first([error_correct_read_fa, GetErrorCorrectedReads.ec_reads])
+    overlaps = select_first([overlaps_paf, GetOverlaps.overlaps])
+    cov = select_first([est_coverage, EstimateCoverage.coverage])
+
+    call InstallAndRunRAFT {
         input:
-            error_corrected_reads = GetErrorCorrectedReads.ec_reads,
-            overlaps = GetOverlaps.overlaps,
-            coverage = EstimateCoverage.coverage,
-            raft_bin_path = InstallRAFT.raft_bin_path,
+            error_corrected_reads = ec_reads,
+            overlaps = overlaps,
+            coverage = cov,
             disk_size = raft_disk_size
     }
 
     output {
-        File ec_reads  = GetErrorCorrectedReads.ec_reads
-        File overlaps = GetOverlaps.overlaps
+        File ec_reads  = ec_reads
+        File overlaps = overlaps
+        Int coverage = cov
         File fragmented_reads = RunRAFT.fragmented_reads  
         File raft_log = RunRAFT.log
-        File raft_executable = InstallRAFT.raft_executable
     }
 }
 
@@ -175,6 +188,34 @@ task GetOverlaps {
     }
 }
 
+task EstimateCoverage {
+    input {
+        File input_fastq
+        String estimated_genome_size
+        Int cpu = 1
+        Int memory_gb = 4
+        Int max_retries = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+        total_bases=$(zcat ~{input_fastq} | awk '{if(NR%4==2) sum+=length($0)} END{print sum}')
+        echo $((total_bases / ~{estimated_genome_size})) > coverage.txt
+    >>>
+
+    output {
+        Int coverage = read_int("coverage.txt")
+    }
+
+    runtime {
+        docker: "ubuntu:latest"
+        cpu: cpu
+        disks: "local-disk 100 HDD"
+        memory: "~{memory_gb} GB"
+        maxRetries: max_retries
+    }
+}
+
 task InstallRAFT {
     input {
         Int cpu = 2
@@ -218,34 +259,6 @@ task InstallRAFT {
     }
 }
 
-task EstimateCoverage {
-    input {
-        File input_fastq
-        String estimated_genome_size
-        Int cpu = 1
-        Int memory_gb = 4
-        Int max_retries = 3
-    }
-
-    command <<<
-        set -euxo pipefail
-        total_bases=$(zcat ~{input_fastq} | awk '{if(NR%4==2) sum+=length($0)} END{print sum}')
-        echo $((total_bases / ~{estimated_genome_size})) > coverage.txt
-    >>>
-
-    output {
-        Int coverage = read_int("coverage.txt")
-    }
-
-    runtime {
-        docker: "ubuntu:latest"
-        cpu: cpu
-        disks: "local-disk 100 HDD"
-        memory: "~{memory_gb} GB"
-        maxRetries: max_retries
-    }
-}
-
 task RunRAFT {
     input {
         File error_corrected_reads
@@ -273,6 +286,57 @@ task RunRAFT {
     }
 
     runtime {
+        docker: "ubuntu:latest"
+        cpu: cpu
+        disks: "local-disk " + disk_size + " HDD"
+        memory: "~{memory_gb} GB"
+        maxRetries: max_retries
+    }
+}
+
+task InstallAndRunRAFT {
+    input {
+        File error_corrected_reads
+        File overlaps
+        Int coverage
+        Int cpu = 32  # Using larger value from RunRAFT
+        Int memory_gb = 100  # Using larger value from RunRAFT
+        Int disk_size = 100
+        Int max_retries = 3  # Using larger value from RunRAFT
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        apt-get update && apt-get install -y git build-essential
+        apt-get install -y libz-dev
+
+        mkdir -p raft_install
+        cd raft_install
+
+        git clone https://github.com/at-cg/RAFT.git
+        cd RAFT
+        make
+
+        mkdir -p $PWD/bin
+        mv raft $PWD/bin/
+
+        RAFT_PATH=$PWD/bin
+        cd ../..  # Return to original directory
+
+        # Add RAFT to path
+        export PATH=$PATH:$RAFT_PATH
+
+        # Run RAFT
+        raft -e ~{coverage} -o fragmented ~{error_corrected_reads} ~{overlaps} > raft.log
+    >>>  
+
+    output {  
+        File fragmented_reads = "fragmented.reads.fasta"  
+        File log = "raft.log"  
+    }  
+
+    runtime {  
         docker: "ubuntu:latest"
         cpu: cpu
         disks: "local-disk " + disk_size + " HDD"
