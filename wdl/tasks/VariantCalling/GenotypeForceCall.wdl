@@ -55,6 +55,7 @@ task AddGenotype {
         File bam
         File bai
         String sample_id
+        String prefix
         RuntimeAttr? runtime_attr_override
     }
 
