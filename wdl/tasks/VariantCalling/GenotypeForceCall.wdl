@@ -39,7 +39,7 @@ workflow Sniffles2Genotype {
     }
 
     output {
-         File? genotyped_vcf = AddGenotype.vcf
+         File? genotyped_vcf = AddGenotype.geno_vcf
     }
 }
 
@@ -82,7 +82,7 @@ task AddGenotype {
     >>>
 
     output {
-        File vcf = "~{vcf_output}"
+        File geno_vcf = "~{vcf_output}"
     }
 
     #########################
