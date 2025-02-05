@@ -171,4 +171,7 @@ workflows:
 - name: PBAssembleWithHifiasmRAFT
   subclass: wdl
   primaryDescriptorPath: /wdl/pipelines/PacBio/Assembly/PBAssembleWithHifiasmRAFT.wdl
+- name: GenotypeForceCall
+  subclass: wdl
+  primaryDescriptorPath: /wdl/tasks/VariantCalling/GenotypeForceCall.wdl
 
