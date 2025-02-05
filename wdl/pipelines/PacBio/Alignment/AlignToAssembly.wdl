@@ -14,6 +14,7 @@ workflow Pbmm2AlignmentWithMetrics {
         String lib_name = "RevioCCS"
         String preset = "CCS"
         String outdir
+        String outdirname = "alignments"
         File? bed_to_compute_coverage
     }
 
@@ -63,7 +64,7 @@ workflow Pbmm2AlignmentWithMetrics {
             bed_to_compute_coverage = bed_to_compute_coverage
     }
 
-    String dir = outdir + "/alignments"
+    String dir = outdir + "/" + outdirname
 
     call FF.FinalizeToFile as FinalizeBamHap1 {
         input:

@@ -17,6 +17,7 @@ workflow RunQuastQC {
         assembly_hap2:         "hap2 assembly fa"
         refbam:              "reads aligned to the ref"
         gcs_out_root_dir:   "GCS bucket to store the reads, variants, and metrics files"
+        workflow_name:      "name of output directory inside gcs_out_root_dir"
     }
 
     input {
@@ -26,6 +27,7 @@ workflow RunQuastQC {
         File assembly_hap2
         File refbam
         String gcs_out_root_dir
+        String workflow_name = "RunQuastQC"
     }
 
     #########################################################################################
@@ -42,8 +44,6 @@ workflow RunQuastQC {
 
     #########################################################################################
     # Finalize data
-    String workflow_name = "RunQuastQC"
-
     String dir = sub(gcs_out_root_dir, "/$", "") + "/" + workflow_name + "/~{prefix}"
 
     # collect results

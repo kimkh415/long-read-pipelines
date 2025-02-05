@@ -119,7 +119,7 @@ task AssembleForHaplotigs {
         boot_disk_gb:       10,
         preemptible_tries:  0,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-hifiasm:0.16.1"
+        docker:             "quay.io/biocontainers/hifiasm:0.20.0--h43eeafb_0"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -192,7 +192,7 @@ task AssembleForAltContigs {
         boot_disk_gb:       10,
         preemptible_tries:  0,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-hifiasm:0.16.1"
+        docker:             "quay.io/biocontainers/hifiasm:0.20.0--h43eeafb_0"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
