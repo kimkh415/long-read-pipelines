@@ -60,7 +60,7 @@ task AddGenotype {
     }
 
     parameter_meta {
-        vcf:							"input VCF of known SVs"
+        vcf:              "input VCF of known SVs"
         bam:              "input BAM from which to call genotypes"
         bai:              "index accompanying the BAM"
         sample_id:        "Sample ID"
@@ -73,6 +73,17 @@ task AddGenotype {
 
     command <<<
         set -eux
+
+        # Install system dependencies
+        apt-get update -qq
+        apt-get install -y python3-pip build-essential
+
+        # Install latest Sniffles2
+        pip install --upgrade pip
+        pip install --upgrade sniffles
+
+        # Verify installation and version
+        sniffles --version
 
         sniffles -t ~{cpus} \
                  --sample-id ~{sample_id} \
@@ -94,7 +105,7 @@ task AddGenotype {
         boot_disk_gb:       10,
         preemptible_tries:  3,
         max_retries:        2,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-sniffles2:2.0.6"
+        docker:             "python:3.10-slim"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
