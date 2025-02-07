@@ -90,7 +90,6 @@ task AddGenotype {
                  --input ~{bam} \
                  --genotype-vcf ~{vcf} \
                  --vcf ~{vcf_output}
-        tree
     >>>
 
     output {
