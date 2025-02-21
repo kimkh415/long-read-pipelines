@@ -80,7 +80,7 @@ task AddGenotype {
 
         # Install latest Sniffles2
         pip install --upgrade pip
-        pip install --upgrade sniffles
+        pip install --upgrade sniffles==2.5.3
 
         # Verify installation and version
         sniffles --version
